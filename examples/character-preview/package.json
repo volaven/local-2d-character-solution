@@ -1,0 +1,8 @@
+{
+  "name": "vola-character-preview",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@livliv-dev/player": "0.3.0"
+  }
+}

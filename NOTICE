@@ -1,0 +1,21 @@
+Local 2D Character Solution
+Copyright 2026 famcoach. Licensed under the Apache License, Version 2.0.
+
+This distribution contains material from LivLiv Player, licensed under Apache-2.0:
+  third_party/livliv-player/ (LICENSE, NOTICE, FORMAT.md, schema)
+  src/pack/zip.mjs (adapted from scripts/pack-characters.mjs)
+
+The local preview generates player-surprise.js from @livliv-dev/player 0.3.0.
+The generated file has a modified eye-layer visibility gate. Its source package
+is Apache-2.0 and its original notices are retained here.
+
+LivLiv Player
+Copyright 2026 LivLiv
+
+This product includes software developed by LivLiv (https://livliv.ai).
+
+The featured characters in characters/ are not licensed under the Apache License 2.0. Their own terms are in
+characters/LICENSE.md and characters/CREDITS.md. Three of them (Kujira, Kujira Q, Pen) come from other people's work.
+
+No character from LivLiv Player's characters/ directory is included here.
+Sample Boy art and model are © 2026 volaven, CC BY 4.0; see assets/sample-boy/LICENSE.md.

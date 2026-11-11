@@ -1,0 +1,10 @@
+*.mjs text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.webp binary
+*.png binary
+*.livliv binary
+*.bin binary
+# legacy/ holds byte-exact copies of the ported originals (sha256 in legacy/MANIFEST.json).
+# No EOL conversion there, or the hashes stop matching after a checkout.
+legacy/** -text

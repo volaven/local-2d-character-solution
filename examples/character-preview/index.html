@@ -1,0 +1,35 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>프로젝트 보이 | Local 2D Character Solution</title><style>
+*{box-sizing:border-box}body{font:15px system-ui;margin:0;background:#edf0f5;color:#182033}main{display:flex;gap:20px;padding:20px;height:100vh}#stage{flex:1;background:#fff;border-radius:16px;overflow:hidden;min-width:0}canvas{width:100%;height:100%;display:block}aside{width:300px;background:white;padding:20px;border-radius:16px;overflow:auto}button,input{font:inherit}button{padding:10px;margin:3px;border:1px solid #bcc6d7;border-radius:8px;background:#f8fafc;cursor:pointer}button:hover{background:#dceaff}label{display:block;margin:18px 0 5px}input[type=range]{width:100%}#status{font-size:13px;white-space:pre-wrap;line-height:1.5}h1{font-size:20px}small{color:#586777}
+textarea{width:100%;resize:vertical;font:inherit;padding:8px}#dialogue-status{font-size:13px}
+</style><main><div id="stage"><canvas></canvas></div><aside><h1>프로젝트 보이</h1><p>그림 속 소년이 눈을 맞추고, 표정을 짓고, 내 대사에 반응해요.</p><p id="status">모델 불러오는 중…</p><input id="file" type="file" accept=".vola,.livliv,.zip"><p><small>Vola 캐릭터(.vola)와 기존 LivLiv 패키지(.livliv)를 열 수 있습니다.</small></p><label><input type="checkbox" id="breath-motion" checked> 숨쉬기 모드</label><label><input type="checkbox" id="blink-motion" checked> 자동 눈 깜빡임</label><label><input type="checkbox" id="expression-motion" checked> 표정별 움직임</label><button data-exp="">기본</button><button data-exp="smile">기쁨</button><button data-exp="x_worried">걱정</button><button data-exp="surprised">놀람</button><button data-exp="x_excited">신남</button><label>눈 뜸 / 감김 <input type="range" id="eyes" min="0" max="1" step="0.01" value="1"></label><label>입 벌림 <input type="range" id="mouth" min="0" max="1" step="0.01" value="0"></label><label>고개 좌우 <input type="range" id="turn" min="-30" max="30" step="1" value="0"></label><label>시선 좌우 <input type="range" id="gaze" min="-1" max="1" step="0.01" value="0"></label><p><button id="head">얼굴 확대</button> <button id="background">배경 전환</button><button id="reset">자세 초기화</button></p><label for="dialogue">무음 립싱크 대사</label><textarea id="dialogue" rows="3" maxlength="4000" placeholder="대사를 입력하세요"></textarea><small>예: [기쁨][왼쪽] 반가워요! [놀람][오른쪽] 정말요?</small><label for="dialogue-expression">대사에 넣을 표정</label><select id="dialogue-expression"><option>기쁨</option><option>걱정</option><option>놀람</option><option>신남</option><option>기본</option></select> <button id="insert-expression" type="button">표정 삽입</button><label for="dialogue-gaze">대사에 넣을 시선</label><select id="dialogue-gaze"><option>왼쪽</option><option>정면</option><option>오른쪽</option></select> <button id="insert-gaze" type="button">시선 삽입</button><br><button id="dialogue-play">재생</button><button id="dialogue-repeat">반복 재생</button><button id="dialogue-stop" disabled>정지</button><p id="dialogue-status" role="status"></p><label for="voice-file">음성 파일 립싱크</label><input id="voice-file" type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg"><br><button id="voice-play" disabled>음성 재생</button><button id="voice-stop" disabled>음성 정지</button><p id="voice-status" role="status"></p><button id="voice-analyze" disabled>음성 분석으로 태그 만들기</button><label for="voice-tags">음성 표정·시선 태그</label><textarea id="voice-tags" rows="4" placeholder="0.00 [기본][정면]"></textarea><small>한 줄에 초 단위 시간과 태그를 입력하세요. 예: 2.50 [놀람][왼쪽]</small><p id="voice-analysis-status" role="status"></p></aside></main>
+<script type="module">
+import {Player} from './player-surprise.js?v=1';
+import {attachMotions} from './motion.js?v=4';
+import {attachDialogue} from './dialogue.js?v=4';
+import {attachAudioDialogue} from './audio-dialogue.js?v=2';
+import {isVolaSource,loadVola} from './vola-loader.js?v=1';
+const status=document.querySelector('#status'), canvas=document.querySelector('canvas');
+try {
+ const player=window.testPlayer=new Player(canvas,{idle:false,followPointer:false});
+ const motion=window.viewerMotion=attachMotions(player);
+ function applyExpression(id) {
+   const ok = player.setExpression(id);
+   if (ok || id === null) {
+     motion.setExpression(id);
+     status.dataset.expression = id || 'neutral';
+   }
+   return ok;
+ }
+ const dialogue=attachDialogue(player,applyExpression,document,()=>voice.stop());
+ const voice=attachAudioDialogue(player,()=>dialogue.stop(),applyExpression);
+ async function load(source){try{dialogue.stop();voice.stop();status.textContent='불러오는 중…'; const info=isVolaSource(source)?await loadVola(player,source):await player.load(source);motion.setExpression(null);status.dataset.expression='neutral';status.textContent=`불러옴: ${info.name}\n형식: ${info.format} v${info.version}\n표정: ${info.expressions.map(x=>x.id).join(', ')}`;}catch(e){status.textContent='불러오기 실패: '+e.message;console.error(e)}}
+ await load('../../assets/sample-boy/sample-boy.vola?v='+Date.now());
+ document.querySelector('#file').onchange=e=>{if(e.target.files[0]) load(e.target.files[0])};
+ document.querySelectorAll('[data-exp]').forEach(b=>b.onclick=()=>{const id=b.dataset.exp||null;if(!applyExpression(id)&&id)status.textContent='이 표정은 패키지에 없습니다: '+id});
+ document.querySelector('#eyes').oninput=e=>{player.params.eyeLOpen=player.params.eyeROpen=Number(e.target.value)};
+ document.querySelector('#mouth').oninput=e=>player.params.mouthOpen=Number(e.target.value);
+ document.querySelector('#turn').oninput=e=>player.params.angleX=Number(e.target.value); document.querySelector('#gaze').oninput=e=>player.params.eyeBallX=Number(e.target.value); document.querySelector('#head').onclick=()=>{const close=player.view.zoom<2;player.view.zoom=close?2.5:1;motion.setCameraY(close?-0.30:0)};
+ document.querySelector('#reset').onclick=()=>{for(const [id,value] of [['eyes',1],['mouth',0],['turn',0],['gaze',0]]){const el=document.querySelector('#'+id);el.value=value;el.dispatchEvent(new Event('input'))}player.setExpression(null);motion.setExpression(null);status.dataset.expression='neutral'};
+ document.querySelector('#background').onclick=()=>{const s=document.querySelector('#stage');s.style.background=s.style.background==='rgb(34, 42, 56)'?'#fff':'#222a38'};
+}catch(e){status.textContent='플레이어 시작 실패: '+e.message;console.error(e)}
+</script></html>

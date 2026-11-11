@@ -1,0 +1,21 @@
+{
+  "name": "vola-live",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "vola-live": "bin/vola-live.mjs"
+  },
+  "engines": {
+    "node": ">=24.15.0 <25"
+  },
+  "dependencies": {
+    "sharp": "0.35.5"
+  },
+  "scripts": {
+    "test": "node --test test/sample.test.mjs",
+    "build:player": "node build-surprise-player.mjs",
+    "build:sample": "node scripts/rebuild-sample.mjs"
+  }
+}

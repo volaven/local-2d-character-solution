@@ -1,0 +1,3 @@
+# third_party/ holds upstream files copied byte for byte (sha256 in livliv-player/UPSTREAM.md).
+# They were copied from a Windows checkout (CRLF). No EOL conversion, or the hashes stop matching.
+** -text
